@@ -1,9 +1,10 @@
 'use client';
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function Home() {
-  const pidRef = useRef<HTMLElement>(null);
+  const pidRef = useRef<SVGSVGElement>(null);
+  const pidObjRef = useRef<HTMLObjectElement>(null);
 
   // for dev purpose: show x and y coordinates of mouse over PID
   const [mx, setMx] = useState(0);
@@ -35,13 +36,76 @@ export default function Home() {
 
     {id: "PT9", x: 690, y: 455, value: "100 PSI", color: "emerald-500"},
 
-    {id: "PT2", x: 675, y: 380, value: "100", color: "red-400"},
-    {id: "PT1", x: 580, y: 380, value: "100", color: "red-400"},
+    {id: "PT2", x: 665, y: 380, value: "100 PSI", color: "red-400"},
+    {id: "PT1", x: 580, y: 380, value: "100 PSI", color: "red-400"},
 
     {id: "LC2", x: 490, y: 339, value: "100 N", color: "white"},
 
     {id: "PT8", x: 360, y: 290, value: "100 PSI", color: "emerald-500"},
-  ]
+  ];
+
+  const inactiveColorBase = "#009b9e";
+  const activeColorBase = "#ff4382";
+
+  const valveMapping = {
+    1: "OKVA-1",
+    2: "OVV-2",
+    3: "OFV-1",
+    4: "OTV-1",
+    5: "NFV-1",
+    6: "OPV-1",
+    7: "OVV-1",
+    8: "ODV-1",
+    9: "NVV-1",
+    10: "OIV-2",
+    11: "NIV-1",
+    12: "FIV-1",
+    13: "OIV-1",
+    14: "FDV-1",
+    15: "FVV-1",
+    16: "FPV-1"
+  }
+
+  useEffect(() => {
+    if (pidObjRef.current) {
+      const svg = pidObjRef.current;
+      for (const [valve, valveId] of Object.entries(valveMapping)) {
+        const suffix = valve.padStart(2, '0');
+        const elems_fill = svg.contentDocument?.querySelectorAll(`[fill$='${suffix}']`);
+        const elems_stroke = svg.contentDocument?.querySelectorAll(`[stroke$='${suffix}']`);
+        elems_fill?.forEach((el) => {
+          el.setAttribute("valve", valveId);
+          el.setAttribute("fill", inactiveColorBase);
+        });
+        elems_stroke?.forEach((el) => {
+          el.setAttribute("valve", valveId);
+          el.setAttribute("stroke", inactiveColorBase);
+        });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      let svg = document.getElementById("pid_obj") as HTMLObjectElement;
+      if (svg && svg.contentDocument) {
+        let doc = svg.contentDocument;
+        for (const valveId of Object.values(valveMapping)) {
+          let elements = doc.querySelectorAll(`[valve='${valveId}']`);
+          let isActive = Math.random() < 0.5;
+          elements.forEach((el) => {
+            if (el.hasAttribute("fill")) {
+              el.setAttribute("fill", isActive ? activeColorBase : inactiveColorBase);
+            }
+            if (el.hasAttribute("stroke")) {
+              el.setAttribute("stroke", isActive ? activeColorBase : inactiveColorBase);
+            }
+          });
+        }
+      }
+    }, 200);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="bg-black h-screen text-white font-sans overflow-hidden"  onMouseMove={handleMouseMove}>
@@ -63,7 +127,7 @@ export default function Home() {
         <div className="text-2xl tracking-widest text-gray-400">
           〉HOTFIRE 1
         </div>
-        {/* <div className="text-sm text-gray-500 font-mono">
+        {/* <div className="text-sm text-gray-400 font-mono">
           MX: {mx.toFixed(0)} | MY: {my.toFixed(0)}
         </div> */}
         <div className="flex-1"></div>
@@ -78,7 +142,7 @@ export default function Home() {
           className="inline-block"
         />
       </div>
-      <div className="border-t h-0.5 border-gray-500 mx-4"></div>
+      <div className="border-t h-0.5 border-gray-400 mx-4"></div>
     </header>
     <div className="grid grid-cols-[3fr_1fr] h-[80vh]">
 
@@ -86,7 +150,7 @@ export default function Home() {
       <div className="px-4 pt-10 relative">
         <svg className="max-w-full h-auto" viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg" ref={pidRef}>
           <foreignObject width="1000" height="700" x="0" y="0">
-            <object className="max-w-full h-auto invert pointer-events-none" type="image/svg+xml" data="pid.svg"></object>
+            <object className="max-w-full h-auto invert pointer-events-none" type="image/svg+xml" data="pid.svg" id="pid_obj" ref={pidObjRef}></object>
           </foreignObject>
           {pos.map((p) => (
             <foreignObject key={p.id} width="1000" height="700" x={p.x} y={p.y}>
@@ -107,9 +171,9 @@ export default function Home() {
       </div>
 
       {/* RIGHT PANEL */}
-      <div className="p-4 m-4 border border-gray-500 rounded-lg">
+      <div className="p-4 m-4 border border-gray-400 rounded-lg">
         <div className="space-y-2">
-          <div className="text-lg uppercase tracking-widest text-gray-500">SYSTEM ///</div>
+          <div className="text-lg uppercase tracking-widest text-gray-400">SYSTEM ///</div>
           <div className="grid grid-cols-[3fr_1fr] gap-2 text-sm">
             <div className="text-gray-300 tracking-widest uppercase">ARMING</div>
             <div className="text-emerald-600 tracking-widest uppercase">ACTIVE</div>
@@ -117,9 +181,9 @@ export default function Home() {
             <div className="text-emerald-600 tracking-widest uppercase">FIRE</div>
           </div>
         </div>
-        <div className="w-full border-t border-gray-500 rounded-full h-0.5 my-4"></div>
+        <div className="w-full border-t border-gray-400 rounded-full h-0.5 my-4"></div>
         <div className="space-y-2">
-          <p className="text-lg uppercase tracking-widest text-gray-500 mb-2">THROTTLE ///</p>
+          <p className="text-lg uppercase tracking-widest text-gray-400 mb-2">THROTTLE ///</p>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-sm text-gray-300 uppercase tracking-widest">Oxidizer</div>
@@ -131,9 +195,9 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="w-full border-t border-gray-500 rounded-full h-0.5 my-4"></div>
+        <div className="w-full border-t border-gray-400 rounded-full h-0.5 my-4"></div>
         <div className="space-y-2">
-          <div className="text-lg uppercase tracking-widest text-gray-500">SUBSYSTEMS ///</div>
+          <div className="text-lg uppercase tracking-widest text-gray-400">SUBSYSTEMS ///</div>
           <div className="grid grid-cols-[3fr_1fr] gap-2 text-sm">
             <div className="text-gray-300 tracking-widest uppercase">PRESSURE</div>
             <div className="text-emerald-600 tracking-widest uppercase">NOMINAL</div>
@@ -150,32 +214,32 @@ export default function Home() {
             <div className="text-gray-300 tracking-widest uppercase">SWITCHBOARD</div>
             <div className="text-red-400 tracking-widest uppercase">Error</div>
           </div>
-          <div className="w-full border-t border-gray-500 rounded-full h-0.5 my-4"></div>
+          <div className="w-full border-t border-gray-400 rounded-full h-0.5 my-4"></div>
           <div className="space-y-2 text-sm">
-            <div className="text-lg uppercase tracking-widest text-gray-500">PROGRAM ///</div>
+            <div className="text-lg uppercase tracking-widest text-gray-400">PROGRAM ///</div>
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 rounded-full bg-emerald-600"></div>
               <div className="text-gray-300 tracking-widest uppercase">Fueling</div>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded-full bg-gray-700 border border-gray-500"></div>
-              <div className="text-gray-500 tracking-widest uppercase">Ignition</div>
+              <div className="w-4 h-4 rounded-full bg-gray-700 border border-gray-400"></div>
+              <div className="text-gray-400 tracking-widest uppercase">Ignition</div>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded-full bg-gray-700 border border-gray-500"></div>
-              <div className="text-gray-500 tracking-widest uppercase">Await Pressure Spike</div>
+              <div className="w-4 h-4 rounded-full bg-gray-700 border border-gray-400"></div>
+              <div className="text-gray-400 tracking-widest uppercase">Await Pressure Spike</div>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded-full bg-gray-700 border border-gray-500"></div>
-              <div className="text-gray-500 tracking-widest uppercase">Throttling Profile</div>
+              <div className="w-4 h-4 rounded-full bg-gray-700 border border-gray-400"></div>
+              <div className="text-gray-400 tracking-widest uppercase">Throttling Profile</div>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded-full bg-gray-700 border border-gray-500"></div>
-              <div className="text-gray-500 tracking-widest uppercase">Detank</div>
+              <div className="w-4 h-4 rounded-full bg-gray-700 border border-gray-400"></div>
+              <div className="text-gray-400 tracking-widest uppercase">Detank</div>
             </div>
           </div>
-          <div className="text-xs text-gray-500 mt-6 uppercase tracking-widest">
-            Osiris Visualizer Build 0.0.1<br/>Jieruei Chang | MIT Rocket Team
+          <div className="text-xs text-gray-400 mt-6 uppercase tracking-widest">
+            Osiris Visualizer Rev 1<br/>Jieruei Chang | MIT Rocket Team
           </div>
         </div>
       </div>
