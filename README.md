@@ -18,4 +18,5 @@ Several design criteria must be satisfied:
 - Frontend
     - `cd frontend`
     - `npm install`
-    - `npm run dev`
+    - `npm run build`
+    - `npm run start`
