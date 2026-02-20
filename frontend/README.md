@@ -10,7 +10,12 @@ Several design criteria must be satisfied:
 
 <img width="1982" height="1190" alt="image" src="https://github.com/user-attachments/assets/f7cba2e2-3a10-44b0-8dbb-85f7c816f296" />
 
-## Roadmap
-- [x] Frontend layouts
-- [ ] Websocket communication
-- [ ] Server scaffolding and ground station interface
+## Usage
+- Backend
+    - `cd backend`
+    - `pip install -r requirements.txt`
+    - `uvicorn server:app --reload`
+- Frontend
+    - `cd frontend`
+    - `npm install`
+    - `npm run dev`

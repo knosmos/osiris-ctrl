@@ -19,21 +19,21 @@ app.add_middleware(
 
 """ == SERIAL SETUP == """
 
-ports = serial.tools.list_ports.comports()
-print("AVAILABLE PORTS:")
-for port, desc, hwid in sorted(ports):
-    print("{}: {} [{}]".format(port, desc, hwid))
-if len(ports) > 1:
-    port = input("SELECT PORT > ")
-    if port == "":
-        port = sorted(ports)[0][0]
-else:
-    ports = []
-    while len(ports) == 0:
-        ports = serial.tools.list_ports.comports()
-    port = ports[0][0]
-print(f"SELECTED PORT: {port}")
-serial_port = serial.Serial(port, baudrate=115200, timeout=1)
+# ports = serial.tools.list_ports.comports()
+# print("AVAILABLE PORTS:")
+# for port, desc, hwid in sorted(ports):
+#     print("{}: {} [{}]".format(port, desc, hwid))
+# if len(ports) > 1:
+#     port = input("SELECT PORT > ")
+#     if port == "":
+#         port = sorted(ports)[0][0]
+# else:
+#     ports = []
+#     while len(ports) == 0:
+#         ports = serial.tools.list_ports.comports()
+#     port = ports[0][0]
+# print(f"SELECTED PORT: {port}")
+# serial_port = serial.Serial(port, baudrate=115200, timeout=1)
 
 """ == P&ID CONFIGURATION == """
 
@@ -101,8 +101,8 @@ def dummy_update_thread():
         #SENSOR_STATE[list(SENSOR_STATE.keys())[ctr_sensor]] = (SENSOR_STATE[list(SENSOR_STATE.keys())[ctr_sensor]] + 1) % 100
         for sensor in SENSOR_STATE.keys():
             SENSOR_STATE[sensor] = (SENSOR_STATE[sensor] + 1) % 100
-# t = threading.Thread(target=dummy_update_thread, daemon=True)
-# t.start()
+t = threading.Thread(target=dummy_update_thread, daemon=True)
+t.start()
 
 " == SERIAL LOGIC =="
 
@@ -142,8 +142,8 @@ def update_thread():
                 print(f"Error parsing data: {data} ({e})")
         time.sleep(POLL_INTERVAL)
 
-t = threading.Thread(target=update_thread, daemon=True)
-t.start()
+# t = threading.Thread(target=update_thread, daemon=True)
+# t.start()
 
 " == SERVER ROUTING == "
 
