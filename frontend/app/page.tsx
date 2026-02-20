@@ -1,6 +1,7 @@
 'use client';
 import Image from "next/image";
 import { useRef, useState, useEffect } from "react";
+import { fetch_data } from "./api";
 
 export default function Home() {
   const pidRef = useRef<SVGSVGElement>(null);
@@ -43,7 +44,7 @@ export default function Home() {
 
   //   {id: "PT8", x: 360, y: 290, value: "100 PSI", color: "emerald-500"},
   // ];
-  const pos = [
+  const [pos, setPos] = useState([
     {id: "FPT1", x: 450, y: 215, value: "0 PSI", color: "emerald-500"},
     {id: "FPT2", x: 770, y: 220, value: "100 PSI", color: "emerald-500"},
     {id: "FPT3", x: 890, y: 220, value: "100 PSI", color: "emerald-500"},
@@ -52,7 +53,7 @@ export default function Home() {
     {id: "LC3", x: 690, y: 373, value: "380 N", color: "white"},
     {id: "LC2", x: 690, y: 393, value: "380 N", color: "white"},
     {id: "TC2", x: 670, y: 413, value: "100 C", color: "emerald-500"},
-    {id: "FPT4", x: 690, y: 440, value: "100 PSI", color: "emerald-500"},
+    {id: "FPT4", x: 695, y: 440, value: "100 PSI", color: "emerald-500"},
     {id: "CPT2", x: 790, y: 455, value: "100 PSI", color: "emerald-500"},
     {id: "TC1", x: 872, y: 428, value: "100 C", color: "emerald-500"},
     {id: "OPT1", x: 450, y: 478, value: "0 PSI", color: "emerald-500"},
@@ -62,7 +63,7 @@ export default function Home() {
     {id: "OPT2", x: 650, y: 520, value: "0 PSI", color: "emerald-500"},
     {id: "OPT3", x: 750, y: 520, value: "100 PSI", color: "emerald-500"},
     {id: "OPT0", x: 700, y: 552, value: "100 PSI", color: "emerald-500"},
-  ]
+  ])
 
   const inactiveColorBase = "#009b9e";
   const activeColorBase = "#ff4382";
@@ -110,44 +111,76 @@ export default function Home() {
 
   useEffect(() => {
     if (pidObjRef.current) {
-      const svg = pidObjRef.current;
-      for (const [valve, valveId] of Object.entries(valveMapping)) {
-        const suffix = valve.padStart(2, '0');
-        const elems_fill = svg.contentDocument?.querySelectorAll(`[fill$='${suffix}']`);
-        const elems_stroke = svg.contentDocument?.querySelectorAll(`[stroke$='${suffix}']`);
-        elems_fill?.forEach((el) => {
-          el.setAttribute("valve", valveId);
-          el.setAttribute("fill", inactiveColorBase);
-        });
-        elems_stroke?.forEach((el) => {
-          el.setAttribute("valve", valveId);
-          el.setAttribute("stroke", inactiveColorBase);
-        });
-      }
+      setTimeout(() => {
+        const svg = pidObjRef.current;
+        if (svg && svg.contentDocument) {
+          for (const [valve, valveId] of Object.entries(valveMapping)) {
+            const suffix = valve.padStart(2, '0');
+            const elems_fill = svg.contentDocument?.querySelectorAll(`[fill$='ff00${suffix}']`);
+            const elems_stroke = svg.contentDocument?.querySelectorAll(`[stroke$='ff00${suffix}']`);
+            elems_fill?.forEach((el) => {
+              el.setAttribute("valve", valveId);
+              el.setAttribute("fill", inactiveColorBase);
+            });
+            elems_stroke?.forEach((el) => {
+              el.setAttribute("valve", valveId);
+              el.setAttribute("stroke", inactiveColorBase);
+            });
+          }
+        }
+      }, 100);
     }
   }, []);
 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     let svg = document.getElementById("pid_obj") as HTMLObjectElement;
+  //     if (svg && svg.contentDocument) {
+  //       let doc = svg.contentDocument;
+  //       for (const valveId of Object.values(valveMapping)) {
+  //         let elements = doc.querySelectorAll(`[valve='${valveId}']`);
+  //         let isActive = Math.random() < 0.5;
+  //         elements.forEach((el) => {
+  //           if (el.hasAttribute("fill")) {
+  //             el.setAttribute("fill", isActive ? activeColorBase : inactiveColorBase);
+  //           }
+  //           if (el.hasAttribute("stroke")) {
+  //             el.setAttribute("stroke", isActive ? activeColorBase : inactiveColorBase);
+  //           }
+  //         });
+  //       }
+  //     }
+  //   }, 200);
+  //   return () => clearInterval(interval);
+  // }, []);
   useEffect(() => {
     const interval = setInterval(() => {
       let svg = document.getElementById("pid_obj") as HTMLObjectElement;
       if (svg && svg.contentDocument) {
-        let doc = svg.contentDocument;
-        for (const valveId of Object.values(valveMapping)) {
-          let elements = doc.querySelectorAll(`[valve='${valveId}']`);
-          let isActive = Math.random() < 0.5;
-          elements.forEach((el) => {
-            if (el.hasAttribute("fill")) {
-              el.setAttribute("fill", isActive ? activeColorBase : inactiveColorBase);
-            }
-            if (el.hasAttribute("stroke")) {
-              el.setAttribute("stroke", isActive ? activeColorBase : inactiveColorBase);
-            }
-          });
-        }
+        fetch_data().then((data) => {
+          for (const valveId of Object.values(valveMapping)) {
+            let elements = svg.contentDocument?.querySelectorAll(`[valve='${valveId}']`);
+            let isActive = data["valves"][valveId];
+            elements?.forEach((el) => {
+              if (el.hasAttribute("fill")) {
+                el.setAttribute("fill", isActive ? activeColorBase : inactiveColorBase);
+              }
+              if (el.hasAttribute("stroke")) {
+                el.setAttribute("stroke", isActive ? activeColorBase : inactiveColorBase);
+              }
+            });
+          }
+          setPos(prevPos => prevPos.map(sensor => ({
+            ...sensor,
+            value: data["sensors"][sensor.id] || sensor.value
+          })));
+        }).catch((error) => {
+          console.error("Error fetching data:", error);
+        });
       }
     }, 200);
     return () => clearInterval(interval);
-  }, []);
+  });
 
   return (
     <div className="bg-black h-screen text-white font-sans overflow-hidden"  onMouseMove={handleMouseMove}>
@@ -167,7 +200,7 @@ export default function Home() {
           OSIRIS
         </div>
         <div className="text-2xl tracking-widest text-gray-400">
-          〉HOTFIRE 1
+          〉DRYRUN 1
         </div>
         {/* <div className="text-sm text-gray-400 font-mono">
           MX: {mx.toFixed(0)} | MY: {my.toFixed(0)}
