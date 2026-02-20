@@ -20,72 +20,30 @@ export default function Home() {
     }
   }
 
-  // const pos = [
-  //   {id: "PT7", x: 630, y: 272, value: "100 PSI", color: "emerald-500"},
-  //   {id: "LC1", x: 630, y: 292, value: "380 N", color: "white"},
-  //   {id: "TC3", x: 630, y: 312, value: "100 C", color: "emerald-500"},
-  //   {id: "PT6", x: 650, y: 340, value: "100 PSI", color: "emerald-500"},
-
-  //   {id: "PT5", x: 865, y: 360, value: "100 PSI", color: "emerald-500"},
-  //   {id: "TC1", x: 865, y: 380, value: "100 C", color: "emerald-500"},
-  //   {id: "TC2", x: 825, y: 250, value: "100 C", color: "emerald-500"},
-
-  //   {id: "DPT", x: 650, y: 150, value: "0 PSI", color: "emerald-500"},
-
-  //   {id: "PT3", x: 360, y: 190, value: "100 PSI", color: "orange-400"},
-  //   {id: "PT4", x: 360, y: 390, value: "100 PSI", color: "emerald-500"},
-
-  //   {id: "PT9", x: 690, y: 455, value: "100 PSI", color: "emerald-500"},
-
-  //   {id: "PT2", x: 665, y: 380, value: "100 PSI", color: "red-400"},
-  //   {id: "PT1", x: 580, y: 380, value: "100 PSI", color: "red-400"},
-
-  //   {id: "LC2", x: 490, y: 339, value: "100 N", color: "white"},
-
-  //   {id: "PT8", x: 360, y: 290, value: "100 PSI", color: "emerald-500"},
-  // ];
   const [pos, setPos] = useState([
-    {id: "FPT1", x: 450, y: 215, value: "0 PSI", color: "emerald-500"},
-    {id: "FPT2", x: 770, y: 220, value: "100 PSI", color: "emerald-500"},
-    {id: "FPT3", x: 890, y: 220, value: "100 PSI", color: "emerald-500"},
-    {id: "CPT1", x: 700, y: 285, value: "100 PSI", color: "emerald-500"},
-    {id: "NPT1", x: 415, y: 354, value: "100 PSI", color: "emerald-500"},
-    {id: "LC3", x: 690, y: 373, value: "380 N", color: "white"},
-    {id: "LC2", x: 690, y: 393, value: "380 N", color: "white"},
-    {id: "TC2", x: 670, y: 413, value: "100 C", color: "emerald-500"},
-    {id: "FPT4", x: 695, y: 440, value: "100 PSI", color: "emerald-500"},
-    {id: "CPT2", x: 790, y: 455, value: "100 PSI", color: "emerald-500"},
-    {id: "TC1", x: 872, y: 428, value: "100 C", color: "emerald-500"},
-    {id: "OPT1", x: 450, y: 478, value: "0 PSI", color: "emerald-500"},
-    {id: "LC1", x: 555, y: 440, value: "380 N", color: "white"},
-    {id: "OPT4", x: 790, y: 487, value: "100 PSI", color: "emerald-500"},
-    {id: "FPT5", x: 890, y: 487, value: "100 PSI", color: "emerald-500"},
-    {id: "OPT2", x: 650, y: 520, value: "0 PSI", color: "emerald-500"},
-    {id: "OPT3", x: 750, y: 520, value: "100 PSI", color: "emerald-500"},
-    {id: "OPT0", x: 700, y: 552, value: "100 PSI", color: "emerald-500"},
+    {id: "FPT1", x: 450, y: 215, value: "OFF", color: "emerald-500"},
+    {id: "FPT2", x: 770, y: 220, value: "OFF", color: "emerald-500"},
+    {id: "FPT3", x: 890, y: 220, value: "OFF", color: "emerald-500"},
+    {id: "CPT1", x: 700, y: 285, value: "OFF", color: "emerald-500"},
+    {id: "NPT1", x: 415, y: 354, value: "OFF", color: "emerald-500"},
+    {id: "LC3", x: 690, y: 373, value: "OFF", color: "gray-500"},
+    {id: "LC2", x: 690, y: 393, value: "OFF", color: "white"},
+    {id: "TC2", x: 670, y: 413, value: "OFF", color: "emerald-500"},
+    {id: "FPT4", x: 695, y: 440, value: "OFF", color: "emerald-500"},
+    {id: "CPT2", x: 790, y: 455, value: "OFF", color: "emerald-500"},
+    {id: "TC1", x: 872, y: 428, value: "OFF", color: "emerald-500"},
+    {id: "OPT1", x: 450, y: 478, value: "OFF", color: "emerald-500"},
+    {id: "LC1", x: 555, y: 440, value: "OFF", color: "white"},
+    {id: "OPT4", x: 790, y: 487, value: "OFF", color: "emerald-500"},
+    {id: "FPT5", x: 890, y: 487, value: "OFF", color: "emerald-500"},
+    {id: "OPT2", x: 650, y: 520, value: "OFF", color: "emerald-500"},
+    {id: "OPT3", x: 750, y: 520, value: "OFF", color: "emerald-500"},
+    {id: "OPT0", x: 700, y: 552, value: "OFF", color: "emerald-500"},
   ])
 
   const inactiveColorBase = "#009b9e";
   const activeColorBase = "#ff4382";
 
-  // const valveMapping = {
-  //   1: "OKVA-1",
-  //   2: "OVV-2",
-  //   3: "OFV-1",
-  //   4: "OTV-1",
-  //   5: "NFV-1",
-  //   6: "OPV-1",
-  //   7: "OVV-1",
-  //   8: "ODV-1",
-  //   9: "NVV-1",
-  //   10: "OIV-2",
-  //   11: "NIV-1",
-  //   12: "FIV-1",
-  //   13: "OIV-1",
-  //   14: "FDV-1",
-  //   15: "FVV-1",
-  //   16: "FPV-1"
-  // }
   const valveMapping = {
     1: "FVV-1",
     2: "FDV-1",
@@ -109,6 +67,10 @@ export default function Home() {
     20: "SP-1",
   }
 
+  const [throttleOx, setThrottleOx] = useState(0);
+  const [throttleFuel, setThrottleFuel] = useState(0);
+
+  // Detect valves in SVG
   useEffect(() => {
     if (pidObjRef.current) {
       setTimeout(() => {
@@ -132,27 +94,7 @@ export default function Home() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     let svg = document.getElementById("pid_obj") as HTMLObjectElement;
-  //     if (svg && svg.contentDocument) {
-  //       let doc = svg.contentDocument;
-  //       for (const valveId of Object.values(valveMapping)) {
-  //         let elements = doc.querySelectorAll(`[valve='${valveId}']`);
-  //         let isActive = Math.random() < 0.5;
-  //         elements.forEach((el) => {
-  //           if (el.hasAttribute("fill")) {
-  //             el.setAttribute("fill", isActive ? activeColorBase : inactiveColorBase);
-  //           }
-  //           if (el.hasAttribute("stroke")) {
-  //             el.setAttribute("stroke", isActive ? activeColorBase : inactiveColorBase);
-  //           }
-  //         });
-  //       }
-  //     }
-  //   }, 200);
-  //   return () => clearInterval(interval);
-  // }, []);
+  // Fetch telemetry and update
   useEffect(() => {
     const interval = setInterval(() => {
       let svg = document.getElementById("pid_obj") as HTMLObjectElement;
@@ -172,13 +114,16 @@ export default function Home() {
           }
           setPos(prevPos => prevPos.map(sensor => ({
             ...sensor,
-            value: data["sensors"][sensor.id] || sensor.value
+            value: data["sensors"][sensor.id] || sensor.value,
+            color: data["sensors"][sensor.id] ? "emerald-500" : "gray-600",
           })));
+          setThrottleOx(data["valves"]["OTV-1"]);
+          setThrottleFuel(data["valves"]["FTV-1"]);
         }).catch((error) => {
           console.error("Error fetching data:", error);
         });
       }
-    }, 200);
+    }, 50);
     return () => clearInterval(interval);
   });
 
@@ -262,11 +207,15 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-sm text-gray-300 uppercase tracking-widest">Oxidizer</div>
-              <div className="text-3xl">75%</div>
+              <div className="text-3xl">{
+                throttleOx > 0 ? `${throttleOx}%` : "OFF"
+              }</div>
             </div>
             <div className="text-center">
               <div className="text-sm text-gray-300 uppercase tracking-widest">Fuel</div>
-              <div className="text-3xl">80%</div>
+              <div className="text-3xl">{
+                throttleFuel > 0 ? `${throttleFuel}%` : "OFF"
+              }</div>
             </div>
           </div>
         </div>
@@ -318,6 +267,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+    </div>
+    { /* To circumvent Tailwind's treeshaking, a hidden element containing classes that may only appear at runtime */ }
+    <div className="hidden text-gray-600 bg-gray-600 border-gray-600 text-emerald-500 bg-emerald-500 border-emerald-500 text-red-400 bg-red-400 border-red-400 text-orange-400 bg-orange-400 border-orange-400 text-gray-700 bg-gray-700 border-gray-700">
     </div>
     </div>
   );

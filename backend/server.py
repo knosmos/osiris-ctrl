@@ -1,6 +1,11 @@
+import time, threading
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import time, threading
+import serial
+import serial.tools.list_ports
+
+""" == SERVER SETUP == """
 
 POLL_INTERVAL = 0.05
 
@@ -12,24 +17,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+""" == SERIAL SETUP == """
+
+ports = serial.tools.list_ports.comports()
+print("AVAILABLE PORTS:")
+for port, desc, hwid in sorted(ports):
+    print("{}: {} [{}]".format(port, desc, hwid))
+if len(ports) > 1:
+    port = input("SELECT PORT > ")
+    if port == "":
+        port = sorted(ports)[0][0]
+else:
+    ports = []
+    while len(ports) == 0:
+        ports = serial.tools.list_ports.comports()
+    port = ports[0][0]
+print(f"SELECTED PORT: {port}")
+serial_port = serial.Serial(port, baudrate=115200, timeout=1)
+
+""" == P&ID CONFIGURATION == """
+
 SENSOR_STATE = {
     "FPT1": 0,
     "FPT2": 0,
     "FPT3": 0,
     "CPT1": 0,
     "NPT1": 0,
-    "LC3": 0,
-    "LC2": 0,
-    "TC2": 0, # no
+    # "LC3": 0,
+    # "LC2": 0,
+    # "TC2": 0, # not for hotfire 1
     "FPT4": 0,
     "CPT2": 0,
-    "TC1": 0, # no
+    # "TC1": 0, # not for hotfire 1
     "OPT1": 0,
-    "LC1": 0,
+    # "LC1": 0,
     "OPT4": 0,
     "FPT5": 0,
-    "OPT2": 0, # no
-    "OPT3": 0, # no
+    # "OPT2": 0, # not for hotfire 1
+    # "OPT3": 0, # not for hotfire 1
     "OPT0": 0,
 }
 
@@ -56,36 +81,71 @@ VALVE_STATE = {
     "SP-1": 0,
 }
 
+couplings = {
+    "OIV-1": ["OFV-1"],
+    "NIV-1": ["OPV-1", "FPV-1"],
+    "FIV-1": ["FDV-1"]
+}
+
+""" == TESTING LOGIC == """
+
 ctr_valve = 0
 ctr_sensor = 0
 def dummy_update_thread():
     global SENSOR_STATE, VALVE_STATE, ctr_valve, ctr_sensor
     while True:
-        time.sleep(0.2)
+        time.sleep(0.1)
         ctr_valve = (ctr_valve + 1) % len(VALVE_STATE)
         ctr_sensor = (ctr_sensor + 1) % len(SENSOR_STATE)
         VALVE_STATE[list(VALVE_STATE.keys())[ctr_valve]] = 1 - VALVE_STATE[list(VALVE_STATE.keys())[ctr_valve]]
-        SENSOR_STATE[list(SENSOR_STATE.keys())[ctr_sensor]] = (SENSOR_STATE[list(SENSOR_STATE.keys())[ctr_sensor]] + 1) % 100
-t = threading.Thread(target=dummy_update_thread, daemon=True)
-t.start()
+        #SENSOR_STATE[list(SENSOR_STATE.keys())[ctr_sensor]] = (SENSOR_STATE[list(SENSOR_STATE.keys())[ctr_sensor]] + 1) % 100
+        for sensor in SENSOR_STATE.keys():
+            SENSOR_STATE[sensor] = (SENSOR_STATE[sensor] + 1) % 100
+# t = threading.Thread(target=dummy_update_thread, daemon=True)
+# t.start()
 
+" == SERIAL LOGIC =="
 
 def send_command(command: str):
-    pass
+    global serial_port
+    serial_port.write(bytes(command + "\n", 'utf-8'))
 
 def receive_data():
-    pass
+    if serial_port.in_waiting > 0:
+        line = str(serial_port.readline())
+        if line != "b''":
+            return line[2:-5]
+    return False
 
 def setup_sensor_sweep():
     for sensor in SENSOR_STATE.keys():
-        send_command(f"time every {POLL_INTERVAL} pt get {sensor}")
+        send_command(f"time every {POLL_INTERVAL} pt get {sensor}") # CHANGE
 
-def startup():
+def update_thread():
     send_command("!reset")
     setup_sensor_sweep()
+    while True:
+        data = receive_data()
+        if data:
+            try:
+                if " = " not in data:
+                    continue
+                name, val = data.split(" = ")
+                if name in SENSOR_STATE:
+                    SENSOR_STATE[name] = float(val)
+                if name in VALVE_STATE:
+                    VALVE_STATE[name] = int(val)
+                    if name in couplings:
+                        for coupled_valve in couplings[name]:
+                            VALVE_STATE[coupled_valve] = int(val)
+            except Exception as e:
+                print(f"Error parsing data: {data} ({e})")
+        time.sleep(POLL_INTERVAL)
 
-def receive_data_handler():
-    pass
+t = threading.Thread(target=update_thread, daemon=True)
+t.start()
+
+" == SERVER ROUTING == "
 
 @app.get("/data")
 def get_data():
